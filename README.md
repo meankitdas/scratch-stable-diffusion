@@ -1,0 +1,1 @@
+# scratch-stable-diffusion
