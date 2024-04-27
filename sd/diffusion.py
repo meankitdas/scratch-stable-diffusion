@@ -153,20 +153,36 @@ class UNET_AttentionBlock(nn.Module):
 
         # (Batch_Size, Features, Height * Width) -> (Batch_Size, Features, Height, Width)
         x = x.view((n, c, h, w))
-        
+
         # Final skip connection between initial input and output of the block
         # (Batch_Size, Features, Height, Width) + (Batch_Size, Features, Height, Width) -> (Batch_Size, Features, Height, Width)
         return self.conv_output(x) + residue_long
-        
-        
 
 
 class Upsample(nn.Module):
-    pass
+    def __init__(self, channels):
+        super().__init__()
+        self.conv = nn.Conv2d(channels, channels, kernel_size=3, padding=1)
+
+    def forward(self, x):
+        # (Batch_Size, Features, Height, Width) -> (Batch_Size, Features, Height * 2, Width * 2)
+        x = F.interpolate(x, scale_factor=2, mode="nearest")
+        return self.conv(x)
 
 
 class SwitchSequential(nn.Sequential):
-    pass
+    def forward(self, x, context, time):
+        for layer in self:
+            if isinstance(layer, UNET_AttentionBlock):
+                x = layer(x, context)
+
+            elif isinstance(layer, UNET_ResidualBlock):
+                x = layer(x, time)
+
+            else:
+                x = layer(x)
+
+        return x
 
 
 class UNET(nn.Module):
@@ -287,6 +303,21 @@ class UNET(nn.Module):
             # Since we always concat with the skip connection of the encoder, the number of features increases before being sent to the decoder's layer
             x = torch.cat((x, skip_connections.pop()), dim=1)
             x = layers(x, context, time)
+
+        return x
+
+
+class UNET_OutputLayer(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
+        self.groupnorm = nn.GroupNorm(32, in_channels)
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
+
+    def forward(self, x):
+        # x: (Batch_Size, 320, Height / 8, Width / 8)
+        x = self.groupnorm(x)
+        x = F.silu(x)
+        x = self.conv(x)
 
         return x
 
