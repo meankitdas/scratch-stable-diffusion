@@ -36,11 +36,9 @@ class VAE_Encoder(nn.Sequential):
         # noise: (Batch_Size, 4, Height / 8, Width / 8)
 
         for module in self:
-
             if getattr(module, "stride", None) == (2, 2):
                 x = F.pad(x, (0, 1, 0, 1))
                 # Pad: (Padding_Left, Padding_Right, Padding_Top, Padding_Bottom).
-
             x = module(x)
 
         # (Batch_Size, 8, Height / 8, Width / 8) -> two tensors of shape (Batch_Size, 4, Height / 8, Width / 8)
