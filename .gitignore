@@ -2,5 +2,5 @@
 .vscode
 __pycache__
 .DS_Store
-virtual-env
+sdmv
 data

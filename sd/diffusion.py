@@ -91,7 +91,7 @@ class UNET_AttentionBlock(nn.Module):
         self.layernorm_1 = nn.LayerNorm(channels)
         self.attention_1 = SelfAttention(n_head, channels, in_proj_bias=False)
         self.layernorm_2 = nn.LayerNorm(channels)
-        self.attention_2 = SelfAttention(
+        self.attention_2 = CrossAttention(
             n_head, channels, d_context, in_proj_bias=False
         )
         self.layernorm_3 = nn.LayerNorm(channels)
@@ -270,7 +270,7 @@ class UNET(nn.Module):
                 SwitchSequential(
                     UNET_ResidualBlock(960, 640),
                     UNET_AttentionBlock(8, 80),
-                    upsampling(640),
+                    Upsample(640),
                 ),
                 # (Batch_Size, 960, Height / 8, Width / 8) -> (Batch_Size, 320, Height / 8, Width / 8)
                 SwitchSequential(
