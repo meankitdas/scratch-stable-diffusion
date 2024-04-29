@@ -194,10 +194,10 @@ class UNET(nn.Module):
                 SwitchSequential(nn.Conv2d(4, 320, kernel_size=3, padding=1)),
                 # (Batch_Size, 320, Height / 8, Width / 8) -> (Batch_Size, 320, Height / 8, Width / 8)
                 SwitchSequential(
-                    nn.Conv2d(UNET_ResidualBlock(320, 320), UNET_AttentionBlock(8, 40))
+                    UNET_ResidualBlock(320, 320), UNET_AttentionBlock(8, 40)
                 ),
                 SwitchSequential(
-                    nn.Conv2d(UNET_ResidualBlock(320, 320), UNET_AttentionBlock(8, 40))
+                    UNET_ResidualBlock(320, 320), UNET_AttentionBlock(8, 40)
                 ),
                 # (Batch_Size, 320, Height / 8, Width / 8) -> (Batch_Size, 320, Height / 16, Width / 16)
                 SwitchSequential(
@@ -205,24 +205,20 @@ class UNET(nn.Module):
                 ),
                 # (Batch_Size, 320, Height / 16, Width / 16) -> (Batch_Size, 640, Height / 16, Width / 16)
                 SwitchSequential(
-                    nn.Conv2d(UNET_ResidualBlock(320, 640), UNET_AttentionBlock(8, 80))
+                    UNET_ResidualBlock(320, 640), UNET_AttentionBlock(8, 80)
                 ),
                 SwitchSequential(
-                    nn.Conv2d(UNET_ResidualBlock(640, 640), UNET_AttentionBlock(8, 80))
+                    UNET_ResidualBlock(640, 640), UNET_AttentionBlock(8, 80)
                 ),
                 SwitchSequential(
                     nn.Conv2d(640, 640, kernel_size=3, stride=2, padding=1)
                 ),
                 # (Batch_Size, 640, Height / 32, Width / 32) -> (Batch_Size, 1280, Height / 32, Width / 32)
                 SwitchSequential(
-                    nn.Conv2d(
-                        UNET_ResidualBlock(640, 1280), UNET_AttentionBlock(8, 160)
-                    )
+                    UNET_ResidualBlock(640, 1280), UNET_AttentionBlock(8, 160)
                 ),
                 SwitchSequential(
-                    nn.Conv2d(
-                        UNET_ResidualBlock(1280, 1280), UNET_AttentionBlock(8, 160)
-                    )
+                    UNET_ResidualBlock(1280, 1280), UNET_AttentionBlock(8, 160)
                 ),
                 # (Batch_Size, 1280, Height / 32, Width / 32) -> (Batch_Size, 1280, Height / 64, Width / 64)
                 SwitchSequential(UNET_ResidualBlock(1280, 1280)),
