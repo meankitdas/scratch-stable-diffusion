@@ -8,7 +8,7 @@ class TimeEmbedding(nn.Module):
     def __init__(self, n_embd):
         super().__init__()
         self.linear_1 = nn.Linear(n_embd, 4 * n_embd)
-        self.linear_2 = nn.Linear(4 * n_embd, n_embd)
+        self.linear_2 = nn.Linear(4 * n_embd, 4 * n_embd)
 
     def forward(self, x):
         # x: (1, 320)
@@ -109,7 +109,7 @@ class UNET_AttentionBlock(nn.Module):
         x = self.groupnorm(x)
         x = self.conv_input(x)
 
-        n, c, w, h = x.shape
+        n, c, h, w = x.shape
 
         x = x.view((n, c, h * w))
 
@@ -219,6 +219,10 @@ class UNET(nn.Module):
                 ),
                 SwitchSequential(
                     UNET_ResidualBlock(1280, 1280), UNET_AttentionBlock(8, 160)
+                ),
+                # (Batch_Size, 1280, Height / 32, Width / 32) -> (Batch_Size, 1280, Height / 64, Width / 64)
+                SwitchSequential(
+                    nn.Conv2d(1280, 1280, kernel_size=3, stride=2, padding=1)
                 ),
                 # (Batch_Size, 1280, Height / 32, Width / 32) -> (Batch_Size, 1280, Height / 64, Width / 64)
                 SwitchSequential(UNET_ResidualBlock(1280, 1280)),
