@@ -135,7 +135,7 @@ def generator(
 
             if do_cfg:
                 # (Batch_Size, 4, Latents_Height, Latents_Width) -> (2 * Batch_Size, 4, Latents_Height, Latents_Width)
-                model.input = model_input.repeat(2, 1, 1, 1)
+                model_input = model_input.repeat(2, 1, 1, 1)
 
             # model_output is the predicted noise
             # (Batch_Size, 4, Latents_Height, Latents_Width) -> (Batch_Size, 4, Latents_Height, Latents_Width)
@@ -161,7 +161,7 @@ def generator(
         # (Batch_Size, Channel, Height, Width) -> (Batch_Size, Height, Width, Channel)
         images = images.permute(0, 2, 3, 1)
 
-        images = images.to("mps", torch.uint8).numpy()
+        images = images.to("cpu", torch.uint8).numpy()
 
         return images[0]
 
@@ -182,6 +182,7 @@ def rescale(x, old_range, new_range, clamp=False):
 def get_time_embedding(timestep):
     # Shape: (160,)
     freqs = torch.pow(10000, -torch.arange(start=0, end=160, dtype=torch.float32) / 160)
+    
     # Shape: (1, 160)
     x = torch.tensor([timestep], dtype=torch.float32)[:, None] * freqs[None]
     # Shape: (1, 160 * 2)
