@@ -6,7 +6,7 @@ import math
 
 class SelfAttention(nn.Module):
     def __init__(self, n_head, d_embed, in_proj_bias=True, out_proj_bias=True):
-        super.__init__()
+        super().__init__()
 
         # This combines the Wq, Wk and Wv matrices into one matrix
         self.in_proj = nn.Linear(d_embed, 3 * d_embed, bias=in_proj_bias)
